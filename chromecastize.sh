@@ -7,16 +7,16 @@ HOME=~/.chromecastize
 SUPPORTED_EXTENSIONS=('mkv' 'avi' 'mp4' '3gp' 'mov' 'mpg' 'mpeg' 'qt' 'wmv' 'm2ts' 'flv')
 
 SUPPORTED_GFORMATS=('MPEG-4' 'Matroska')
-UNSUPPORTED_GFORMATS=('BDAV' 'AVI' 'Flash Video')
+UNSUPPORTED_GFORMATS=('BDAV' 'AVI' 'Flash Video' 'CDXA/MPEG-PS' 'MPEG-4 Visual')
 
 SUPPORTED_VCODECS=('AVC')
-UNSUPPORTED_VCODECS=('MPEG-4 Visual' 'xvid' 'MPEG Video', 'HEVC')
+UNSUPPORTED_VCODECS=('MPEG-4 Visual' 'xvid' 'MPEG Video' 'HEVC' 'WMA' 'CDXA/MPEG-PS')
 
 SUPPORTED_ACODECS=('AAC' 'MPEG Audio' 'Vorbis' 'Ogg' 'Opus')
-UNSUPPORTED_ACODECS=('AC-3' 'DTS' 'PCM')
+UNSUPPORTED_ACODECS=('AC-3' 'DTS' 'PCM' 'WMA' 'CDXA/MPEG-PS' '')
 
 DEFAULT_VCODEC=h264
-DEFAULT_ACODEC=libvorbis
+DEFAULT_ACODEC=libmp3lame
 DEFAULT_GFORMAT=mkv
 
 #############
@@ -95,8 +95,8 @@ on_success() {
 	BASENAME=`basename "$FILENAME"`
 	echo "- conversion succeeded; file '$FILENAME.$OUTPUT_GFORMAT' saved"
 	mark_as_good "$FILENAME.$OUTPUT_GFORMAT"
-	echo "- renaming original file as '$FILENAME.bak'"
-	mv "$FILENAME" "$FILENAME.bak"
+	echo "- removing original file '$FILENAME'"
+	rm "$FILENAME"
 }
 
 on_failure() {
@@ -163,7 +163,7 @@ process_file() {
 		if [ "$OUTPUT_GFORMAT" = "ok" ]; then
 			OUTPUT_GFORMAT=$EXTENSION
 		fi
-		$FFMPEG -loglevel error -stats -i "$FILENAME" -map 0 -scodec copy -vcodec "$OUTPUT_VCODEC" -acodec "$OUTPUT_ACODEC" "$FILENAME.$OUTPUT_GFORMAT" && on_success "$FILENAME" || on_failure "$FILENAME"
+		$FFMPEG -loglevel error -stats -i "$FILENAME" -map 0 -scodec copy -vcodec "$OUTPUT_VCODEC" -acodec "$OUTPUT_ACODEC" -ac 2 "$FILENAME.$OUTPUT_GFORMAT" && on_success "$FILENAME" || on_failure "$FILENAME"
 		echo ""
 	fi
 }
